@@ -132,3 +132,4 @@ dmypy.json
 token.json
 mario/*
 copy.sh
+*.txt
