@@ -42,8 +42,8 @@ RESPONSES = [
 ]
 
 IMAGES = [
-    "bottle_cat.jpg",
-    "new_jersey.jpg"
+    "images/bottle_cat.jpg",
+    "images/new_jersey.jpg"
 ]
 
 mario_images = None # imported from a json
@@ -84,19 +84,16 @@ async def on_ready():
 @client.event
 async def on_message(message):
     if "dice-roll" not in message.author.display_name:
-        log(f'''
--New Message-
-Content: {message.content}
-Display Name: {message.author.display_name}
-
-            ''')
+        log(f'-New Message-')
+        log(f'Content: {message.content}')
+        log(f'Display Name: {message.author.display_name})')
         to_chastize = "Willybold_Plack"
         #to_chastize = "gaia_blade"
         if message.author.display_name == to_chastize:
             try:
                 await message.add_reaction("💩")
                 if message.attachments or re.search(REGEX, message.content):
-                    mess, image = random.choice(responses), random.choice(images)
+                    mess, image = random.choice(RESPONSES), random.choice(IMAGES)
                     await message.reply(mess, file=discord.File(image))
             except:
                 pass
@@ -111,34 +108,40 @@ Display Name: {message.author.display_name}
             except:
                 pass
 
-        if "among" in message.content.lower() or "amogus" in message.content.lower():
+        elif "among" in message.content.lower() or "amogus" in message.content.lower():
             try:
-                await message.reply("WHEN THE IMPOSTER IS SUS", file=discord.File("amongsomebitches.jpg"))
+                await message.reply("WHEN THE IMPOSTER IS SUS", file=discord.File("images/amongsomebitches.jpg"))
             except:
                 pass
 
-        if "loss" in message.content.lower():
+        elif "loss" in message.content.lower():
             try:
-                await message.reply("| || || |_", file=discord.File("loss.jpg"))
+                await message.reply("| || || |_", file=discord.File("images/loss.jpg"))
             except:
                 pass
 
-        if "!mario" in message.content.lower():
+        elif "!mario" in message.content.lower():
             try:
                 if message.author.display_name == to_chastize:
-                    await message.reply("", file=discord.File('amongsomebitches.jpg'))
+                    await message.reply("", file=discord.File('images/amongsomebitches.jpg'))
                 else:
                     image = random.choice(mario_images)
-                    log(f'''
-        -Sending Reply-
-        Image file: mario/{image}
-
-                ''')
+                    log(f'-Sending Reply-')
+                    log(f'Image file: mario/{image}')
                     await message.reply("", file=discord.File(f'mario/{image}'))
             except:
                 pass
         
-        if "!rbhelp" in message.content.lower():
+        elif "genshin" in message.content.lower():
+            try:
+                await message.add_reaction("💩")
+                mess, image = random.choice(RESPONSES), random.choice(IMAGES)
+                await message.reply(mess, file=discord.File(image))
+            except:
+                pass
+
+        
+        elif "!rbhelp" in message.content.lower():
             try:
                 await message.reply(help_string)
             except:
