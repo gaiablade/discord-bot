@@ -131,6 +131,12 @@ dmypy.json
 # Project stuff
 token.json
 mario/*
+luigi/*
 images/*
 copy.sh
 *.txt
+script.js
+script.py
+script2.py
+output*
+j.json

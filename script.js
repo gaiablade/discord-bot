@@ -33,33 +33,69 @@ async function get_html_async(file) {
 
 }
 
-let arr = JSON.parse(fs.readFileSync("j.json"))
+function download_file(url, filename) {
+    request.head(url, function(err, res, body){
+        console.log('content-type:', res.headers['content-type']);
+        console.log('content-length:', res.headers['content-length']);
+    
+        request(url).pipe(fs.createWriteStream(filename)).on('close', () => {return true;});
+    })
+}
 
-let urls = arr.map((file) => {
-    return get_html(`https://www.mariowiki.com${file}`)
-})
-
-Promise.all(urls).then(value => {
-    const pattern = /a href=\"(https:\/\/mario.wiki.gallery\/images\/[^\"]+)\"/
-    let a = []
-
-    console.log(`Length: ${value.length}`)
-
-    for (let html of value) {
-        let found = pattern.exec(html)
-        if (found) {
-            console.log(found[1])
-            a.push(found[1])
-        }
+function get_extension_from_url(url) {
+    let pattern = /.*\.(.*)/g
+    const match = pattern.exec(url)
+    if (match) {
+        return match[1]
+    } else {
+        return ""
     }
+}
 
-    return a
+async function download_luigis() {
+    try {
+        const luigi_page = "https://www.mariowiki.com/Gallery:Luigi_artwork_and_scans"
+        let preview_urls = []
+        let pat1 = /href="(\/File:[^"]*)"/g
+        let html = await get_html(luigi_page)
+        let found = pat1.exec(html)
+        while (found != null) {
+            preview_urls.push(`https://www.mariowiki.com${found[1]}`)
+            found = pat1.exec(html)
+        }
+        console.log(preview_urls)
 
-}).then(value => {
-    console.log(value)
-    fs.writeFileSync("test.json", JSON.stringify(value, null, 2))
-}).catch(err => {
-    console.log("HERE")
-    console.log(err)
-    (() => {return true})();
-})
+        let pat2 = /a href="(https:\/\/mario.wiki.gallery\/images\/[^"]*)"/g
+        let image_urls = preview_urls.map(async(url) => {
+            try {
+                console.log(url)
+                let new_html = await get_html(url)
+                let found = pat2.exec(new_html)
+                if (found) {
+                    return found[1];
+                } else {
+                    return null
+                }
+            } catch (err) {
+                return null
+            }
+        })
+        Promise.all(image_urls).then((val) => {
+            console.log(val)
+            let n = 0
+            for (let file of val) {
+                if (file != null) {
+                    let extension = get_extension_from_url(file)
+                    download_file(file, `luigi/${n}.${extension}`)
+                    n++
+                }
+            }
+        }).catch((err) => {
+            (() => {return true;})();
+        })
+    } catch (err) {
+        console.error(err)
+    }
+}
+
+download_luigis()
