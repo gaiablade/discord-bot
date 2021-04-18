@@ -26,7 +26,7 @@ async def add_reaction(message: discord.message.Message):
     words = message.content.split(' ')
     if len(message.attachments) > 0:
         file = message.attachments[0]
-        if "image" in file.content_type:
+        if "image" in file.content_type or "video" in file.content_type:
             filename = f'reactions/{file.filename}'
             url = file.url
             if filename in reaction_images:
@@ -77,8 +77,8 @@ async def list_reacts(message: discord.message.Message):
 
     res = f'```\nPage {page} of {int(num_reactions / 10 + 1)}\n'
     for i in range(10):
-        if i * page < num_reactions:
-            res += f'{i+1}. {reactions[i * page]}\n'
+        if i + 10 * (page - 1) < num_reactions:
+            res += f'{i+1+10*(page-1)}. {reactions[i + 10 * (page - 1)]}\n'
         
     res += '```'
     await message.reply(res)

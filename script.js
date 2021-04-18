@@ -18,26 +18,8 @@ function get_html(file) {
     })
 }
 
-async function get_html_async(file) {
-    request(`${file}`, (error, response, body) => {
-        if (error)  {
-            throw new Error(error)
-        }
-        else if (response && response.statusCode != 200) {
-            throw new Error("invalid status code")
-        }
-        else {
-            return body
-        }
-    })
-
-}
-
 function download_file(url, filename) {
     request.head(url, function(err, res, body){
-        console.log('content-type:', res.headers['content-type']);
-        console.log('content-length:', res.headers['content-length']);
-    
         request(url).pipe(fs.createWriteStream(filename)).on('close', () => {return true;});
     })
 }
@@ -54,7 +36,8 @@ function get_extension_from_url(url) {
 
 async function download_luigis() {
     try {
-        const luigi_page = "https://www.mariowiki.com/Gallery:Luigi_artwork_and_scans"
+        //const luigi_page = "https://www.mariowiki.com/Gallery:Luigi_artwork_and_scans"
+        const luigi_page = "https://www.mariowiki.com/Gallery:Mario_artwork_and_scans"
         let preview_urls = []
         let pat1 = /href="(\/File:[^"]*)"/g
         let html = await get_html(luigi_page)
@@ -86,7 +69,8 @@ async function download_luigis() {
             for (let file of val) {
                 if (file != null) {
                     let extension = get_extension_from_url(file)
-                    download_file(file, `luigi/${n}.${extension}`)
+                    console.log(`mario/${n}.${extension}`)
+                    download_file(file, `mario/${n}.${extension}`)
                     n++
                 }
             }

@@ -1,5 +1,5 @@
 import discord
-import random
+import random as rn
 import json
 import ctypes
 import pathlib
@@ -55,9 +55,10 @@ IMAGES = [
     "images/cringe_collection.jpg"
 ]
 
-luigi_images = None
-with open("luigi_images.json") as file:
-    luigi_images = json.load(file)
+AMONGUS_IMAGES = [
+    "images/amongsomebitches.jpg",
+    "images/impostersus.jpg"
+]
 
 # Open bot token
 token = None
@@ -84,25 +85,20 @@ async def on_message(message: discord.message.Message):
             log(f'-New Message-')
             log(f'Content: {message.content}')
             log(f'Display Name: {message.author.display_name}')
-            to_chastize = "Willybold_Plack"
-            if message.author.display_name == to_chastize:
-                try:
-                    await message.add_reaction("💩")
-                    if message.attachments or re.search(REGEX, message.content):
-                        mess, image = random.choice(RESPONSES), random.choice(IMAGES)
-                        await message.reply(mess, file=discord.File(image))
-                except:
-                    pass
 
             # Roll dice (dice parser replacement)
             if message.content.startswith("!roll"):
-                await roll.roll_dice(message, str(message.content))
+                nat1 = await roll.roll_dice(message, str(message.content))
+                if nat1:
+                    mess, image = rn.choice(RESPONSES), rn.choice(IMAGES)
+                    await message.channel.send(mess, file=discord.File(image))
 
-            elif "among" in message.content.lower() or "amogus" in message.content.lower():
-                await message.reply("WHEN THE IMPOSTER IS SUS", file=discord.File("images/amongsomebitches.jpg"))
+            elif "among" in message.content.lower() or "amogus" in message.content.lower() or "sus" in message.content.lower() or "imposter" in message.content.lower():
+                image = rn.choice(AMONGUS_IMAGES)
+                await message.reply("WHEN THE IMPOSTER IS SUS", file=discord.File(image))
 
             elif "loss" in message.content.lower():
-                await message.reply("| || || |_", file=discord.File("images/loss.jpg"))
+                await message.reply("| l| || |_", file=discord.File("images/loss.jpg"))
 
             elif "!mario" in message.content.lower():
                 await mario.reply(message)
@@ -112,11 +108,11 @@ async def on_message(message: discord.message.Message):
 
             elif "genshin" in message.content.lower():
                 await message.add_reaction("💩")
-                mess, image = random.choice(RESPONSES), random.choice(IMAGES)
+                mess, image = rn.choice(RESPONSES), rn.choice(IMAGES)
                 await message.reply(mess, file=discord.File(image))
 
             elif "!cringe" in message.content.lower():
-                mess, image = random.choice(RESPONSES), random.choice(IMAGES)
+                mess, image = rn.choice(RESPONSES), rn.choice(IMAGES)
                 await message.channel.send(mess, file=discord.File(image))
 
             elif "!rbhelp" in message.content.lower():
