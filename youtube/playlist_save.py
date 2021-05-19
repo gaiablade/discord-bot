@@ -34,11 +34,10 @@ def export(playlist_url):
     # Get playlist url
     match = re.match(PATTERN, playlist_url)
     playlist_id = None
-    if match:
+    if match[1]:
         playlist_id = match[1]
     else:
-        print('URL is not a playlist. Failed YouTube playlist PATTERN match.')
-        exit()
+        return 'Error: URL is not a playlist. Failed YouTube playlist PATTERN match.'
 
     # Get playlist title info
     request = youtube.playlists().list(
@@ -46,7 +45,10 @@ def export(playlist_url):
         id=playlist_id
     )
     response = request.execute()
-    print(response)
+
+    if len(response['items']) == 0:
+        return 'Error: Link does not point to a valid YouTube playlist, or playlist is empty.'
+
     playlist_name = response['items'][0]['snippet']['title']
 
     playlist = {"title": playlist_name, "url": playlist_url, "videos": []}
@@ -69,16 +71,10 @@ def export(playlist_url):
             else:
                 nextPageToken = None
         except googleapiclient.errors.HttpError:
-            print("Error: Given URL is not a valid playlist. Is the playlist private?")
-            exit()
+            return "Error: Given URL is not a valid playlist. Is the playlist private?"
         except Exception as e:
-            print(f"Error: Unknown Error - {e}")
-            exit()
+            return f"Error: Unknown Error - {e}"
 
-
-    for video in playlist["videos"]:
-        print(video["title"])
-        print(video["id"])
-    
     outfile = open("output.json", "w")
     json.dump(playlist, outfile, indent=4)
+    return 0

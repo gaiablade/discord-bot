@@ -133,8 +133,11 @@ async def on_message(message: discord.message.Message):
                 await message.reply("AHA, GOTEEM", file=discord.File("images/goteem.jpg"))
 
             elif "!playlist" in message.content.lower():
-                playlist_save.export(message.content.split(' ')[1])
-                await message.reply('', file=discord.File("output.json"))
+                status = playlist_save.export(message.content.split(' ')[1])
+                if status != 0:
+                    await message.reply(content=status)
+                else:
+                    await message.reply('', file=discord.File("output.json"))
 
     except Exception as e:
         log(f'Exception occured\n')
