@@ -14,6 +14,7 @@ import luigi
 import mario
 import reactions
 import roll
+from youtube import playlist_save
 
 REGEX = r"(?i)\b((?:https?://|\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 
@@ -82,9 +83,10 @@ async def on_ready():
 async def on_message(message: discord.message.Message):
     try:
         if "dice-roll" not in message.author.display_name:
-            log(f'-New Message-')
-            log(f'Content: {message.content}')
-            log(f'Display Name: {message.author.display_name}')
+            log(f'-New Message-\n')
+            log(f'Content: {message.content}\n')
+            log(f'Display Name: {message.author.display_name}\n')
+            log(f'--------------------------------------------------------\n')
 
             # Roll dice (dice parser replacement)
             if message.content.startswith("!roll"):
@@ -126,10 +128,18 @@ async def on_message(message: discord.message.Message):
             
             elif "!react" in message.content.lower():
                 await reactions.reply_with_reaction(message)
+            
+            elif "deez nuts" in message.content.lower():
+                await message.reply("AHA, GOTEEM", file=discord.File("images/goteem.jpg"))
+
+            elif "!playlist" in message.content.lower():
+                playlist_save.export(message.content.split(' ')[1])
+                await message.reply('', file=discord.File("output.json"))
 
     except Exception as e:
-        print('Exception occured')
-        print(e)
+        log(f'Exception occured\n')
+        log(f'{e}\n')
+        log(f'\n')
 
 """
 @client.event
