@@ -9,11 +9,10 @@ import logging
 import urllib.request
 import requests
 
+import bot_commands as bot
+
 import help
-import luigi
-import mario
 import reactions
-import roll
 from youtube import playlist_save
 
 REGEX = r"(?i)\b((?:https?://|\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -38,34 +37,8 @@ async def download(url, filename):
                 break
             handle.write(block)
 
-RESPONSES = [
-    "cringe",
-    "oh brother this STINKS",
-    "damn bro, that's kinda cringe",
-    "ratio",
-    "no <3",
-    "user has been banned for 3 hours for posting cringe",
-    "cringe detected, deploying tear gas"
-]
-
-IMAGES = [
-    "images/bottle_cat.jpg",
-    "images/new_jersey.jpg",
-    "images/jackfilm_cringe.jpg",
-    "images/pringle_cringe.jpg",
-    "images/cringe_collection.jpg"
-]
-
-AMONGUS_IMAGES = [
-    "images/amongsomebitches.jpg",
-    "images/impostersus.jpg"
-]
-
 # Open bot token
-token = None
-with open("token.json") as json_file:
-    data = json.load(json_file)
-    token = data["token"]
+token = json.load(open('token.json'))['token']
 
 client = None
 try:
@@ -77,7 +50,7 @@ except:
 
 @client.event
 async def on_ready():
-    print("Bot connected")
+    print("Bot ready...")
 
 @client.event
 async def on_message(message: discord.message.Message):
@@ -88,70 +61,21 @@ async def on_message(message: discord.message.Message):
             log(f'Display Name: {message.author.display_name}\n')
             log(f'--------------------------------------------------------\n')
 
-            # Roll dice (dice parser replacement)
-            if message.content.startswith("!roll"):
-                nat1 = await roll.roll_dice(message, str(message.content))
-                if nat1:
-                    mess, image = rn.choice(RESPONSES), rn.choice(IMAGES)
-                    await message.channel.send(mess, file=discord.File(image))
+            commands = [bot.dice_roll_command, bot.amogus_command, bot.loss_command, bot.mario_command, bot.luigi_command,
+                        bot.genshin_command, bot.cringe_command, bot.help_command, bot.add_react_command,
+                        bot.reactlist_command, bot.react_command, bot.dn_command, bot.playlist_command]
 
-            elif "among" in message.content.lower() or "amogus" in message.content.lower() or "sus" in message.content.lower() or "imposter" in message.content.lower():
-                image = rn.choice(AMONGUS_IMAGES)
-                await message.reply("WHEN THE IMPOSTER IS SUS", file=discord.File(image))
-
-            elif "loss" in message.content.lower():
-                await message.reply("| l| || |_", file=discord.File("images/loss.jpg"))
-
-            elif "!mario" in message.content.lower():
-                await mario.reply(message)
-
-            elif "!luigi" in message.content.lower():
-                await luigi.reply(message)
-
-            elif "genshin" in message.content.lower():
-                await message.add_reaction("💩")
-                mess, image = rn.choice(RESPONSES), rn.choice(IMAGES)
-                await message.reply(mess, file=discord.File(image))
-
-            elif "!cringe" in message.content.lower():
-                mess, image = rn.choice(RESPONSES), rn.choice(IMAGES)
-                await message.channel.send(mess, file=discord.File(image))
-
-            elif "!rbhelp" in message.content.lower():
-                await message.reply(help.help_string)
-            
-            elif message.content.lower().startswith("!addreact"):
-                await reactions.add_reaction(message)
-            
-            elif "!reactlist" in message.content.lower():
-                await reactions.list_reacts(message)
-            
-            elif "!react" in message.content.lower():
-                await reactions.reply_with_reaction(message)
-            
-            elif "deez nuts" in message.content.lower():
-                await message.reply("AHA, GOTEEM", file=discord.File("images/goteem.jpg"))
-
-            elif "!playlist" in message.content.lower():
-                status = playlist_save.export(message.content.split(' ')[1])
-                if status != 0:
-                    await message.reply(content=status)
-                else:
-                    await message.reply('', file=discord.File("output.json"))
+            for command in commands:
+                done = await command(message)
+                if done: break
 
     except Exception as e:
         log(f'Exception occured\n')
         log(f'{e}\n')
         log(f'\n')
 
-"""
-@client.event
-async def on_error(event, *args, **kwargs):
-    print('error')
-"""
-
 @client.event
 async def on_connect():
-    pass
+    print("Connected to Discord...")
 
 client.run(token)

@@ -37,7 +37,7 @@ def export(playlist_url):
     if match[1]:
         playlist_id = match[1]
     else:
-        return 'Error: URL is not a playlist. Failed YouTube playlist PATTERN match.'
+        return (1, 'Error: URL is not a playlist. Failed YouTube playlist PATTERN match.', None)
 
     # Get playlist title info
     request = youtube.playlists().list(
@@ -47,7 +47,7 @@ def export(playlist_url):
     response = request.execute()
 
     if len(response['items']) == 0:
-        return 'Error: Link does not point to a valid YouTube playlist, or playlist is empty.'
+        return (1, 'Error: Link does not point to a valid YouTube playlist, or playlist is empty/private.', None)
 
     playlist_name = response['items'][0]['snippet']['title']
 
@@ -64,17 +64,17 @@ def export(playlist_url):
 
             response = request.execute()
             for video in response["items"]:
-                playlist["videos"].append({"title": video["snippet"]["title"], "id": f"https://youtu.be/{video['snippet']['resourceId']['videoId']}"})
+                playlist["videos"].append({"title": video["snippet"]["title"], "url": f"https://youtu.be/{video['snippet']['resourceId']['videoId']}"})
             
             if "nextPageToken" in response.keys():
                 nextPageToken = response["nextPageToken"]
             else:
                 nextPageToken = None
         except googleapiclient.errors.HttpError:
-            return "Error: Given URL is not a valid playlist. Is the playlist private?"
+            return (1, "Error: Given URL is not a valid playlist. Is the playlist private?", None)
         except Exception as e:
-            return f"Error: Unknown Error - {e}"
+            return (1, f"Error: Unknown Error - {e}", None)
 
     outfile = open("output.json", "w")
     json.dump(playlist, outfile, indent=4)
-    return 0
+    return (0, playlist['title'], playlist)

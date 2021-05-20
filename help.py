@@ -16,9 +16,22 @@ dice-roll bot commands:
 
 !reactlist [page?] -> Posts a list of up to 10 available reactions. If more than 10 exist, choose which page by adding a numeric specifier.
 
+!playlist [url] -> Creates a JSON file containing every video in a Youtube playlist.
+
+!plhelp -> See additional options for !playlist command.
+
 ------------------------------------
 
 Event words:
 among, amogus, loss
+```
+'''
+
+playlist_help = '''
+```Markdown
+*Playlist File Generator Command*
+---------------------------------
+Format
+!playlist [playlist-url]
 ```
 '''
